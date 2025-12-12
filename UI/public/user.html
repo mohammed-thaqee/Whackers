@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+
+  <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-xl p-8 mt-10">
+    <h1 class="text-3xl font-bold text-blue-600 mb-4">User Dashboard</h1>
+
+    <p class="text-lg mb-4">
+      Welcome, <span id="username" class="font-semibold"></span> 👋
+    </p>
+
+    <p class="text-gray-600 mb-6">
+      Your account is now active. Soon you will be able to:
+    </p>
+
+    <ul class="list-disc ml-5 text-gray-700 mb-6">
+      <li>Submit grocery/medicine requests</li>
+      <li>Chat with shopkeepers via WhatsApp bot</li>
+      <li>Track order status</li>
+    </ul>
+
+    <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+      Logout
+    </button>
+  </div>
+
+<script>
+  // Load user from storage
+  const user = JSON.parse(localStorage.getItem("loggedUser"));
+
+  if (!user || user.role !== "user") {
+    window.location.href = "/";
+  }
+
+  document.getElementById("username").innerText = user.name;
+
+  function logout() {
+    localStorage.removeItem("loggedUser");
+    window.location.href = "/";
+  }
+</script>
+
+</body>
+</html>

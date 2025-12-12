@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Kirana OTP Registration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl bg-white rounded-lg shadow p-8">
+    <h1 class="text-2xl font-bold text-center mb-6">Kirana — Register & Verify</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Register -->
+      <div class="p-4 border rounded">
+        <h2 class="font-semibold mb-3">Register (Send OTP)</h2>
+        <select id="role" class="w-full p-2 border rounded mb-2">
+          <option value="user">User</option>
+          <option value="shopkeeper">Shopkeeper</option>
+        </select>
+        <input id="name" placeholder="Full name" class="w-full p-2 border rounded mb-2" />
+        <input id="email" placeholder="Email" class="w-full p-2 border rounded mb-2" />
+        <input id="phone" placeholder="Phone" class="w-full p-2 border rounded mb-2" />
+        <input id="password" type="password" placeholder="Password" class="w-full p-2 border rounded mb-3" />
+        <button onclick="sendOTP()" class="w-full bg-blue-600 text-white p-2 rounded">Send OTP</button>
+        <p id="sendMsg" class="mt-2 text-sm"></p>
+      </div>
+
+      <!-- Verify -->
+      <div class="p-4 border rounded">
+        <h2 class="font-semibold mb-3">Verify OTP</h2>
+        <input id="vemail" placeholder="Email used for OTP" class="w-full p-2 border rounded mb-2" />
+        <input id="votp" placeholder="OTP" class="w-full p-2 border rounded mb-2" />
+        <button onclick="verifyOTP()" class="w-full bg-green-600 text-white p-2 rounded">Verify OTP</button>
+        <p id="verifyMsg" class="mt-2 text-sm"></p>
+      </div>
+    </div>
+
+    <hr class="my-6" />
+
+    <div>
+      <h3 class="font-semibold mb-2">Login</h3>
+      <div class="flex gap-2">
+        <select id="lrole" class="p-2 border rounded">
+          <option value="user">User</option>
+          <option value="shopkeeper">Shopkeeper</option>
+        </select>
+        <input id="lemail" placeholder="Email" class="p-2 border rounded flex-1" />
+        <input id="lpassword" placeholder="Password" type="password" class="p-2 border rounded flex-1" />
+        <button onclick="login()" class="bg-purple-600 text-white p-2 rounded">Login</button>
+      </div>
+      <p id="loginMsg" class="mt-2 text-sm"></p>
+    </div>
+  </div>
+
+<script>
+  async function sendOTP() {
+    const role = document.getElementById("role").value;
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
+    const password = document.getElementById("password").value;
+
+    document.getElementById("sendMsg").style.color = "black";
+    document.getElementById("sendMsg").innerText = "Sending OTP...";
+
+    const res = await fetch("/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, name, email, phone, password })
+    });
+    const json = await res.json();
+    document.getElementById("sendMsg").innerText = json.message;
+    document.getElementById("sendMsg").style.color = json.success ? "green" : "red";
+  }
+
+  async function verifyOTP() {
+    const email = document.getElementById("vemail").value;
+    const otp = document.getElementById("votp").value;
+
+    document.getElementById("verifyMsg").innerText = "Verifying...";
+
+    const res = await fetch("/verify-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp })
+    });
+    const json = await res.json();
+    document.getElementById("verifyMsg").innerText = json.message;
+    document.getElementById("verifyMsg").style.color = json.success ? "green" : "red";
+  }
+
+ async function login() {
+  const role = document.getElementById("lrole").value;
+  const email = document.getElementById("lemail").value.trim();
+  const password = document.getElementById("lpassword").value;
+
+  const msgEl = document.getElementById("loginMsg");
+  msgEl.style.color = "black";
+  msgEl.innerText = "Logging in...";
+
+  try {
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, email, password })
+    });
+
+    // parse JSON safely
+    const data = await res.json();
+
+    if (!data || !data.success) {
+      msgEl.style.color = "red";
+      msgEl.innerText = (data && data.message) ? data.message : "Login failed";
+      return;
+    }
+
+    // data.success === true
+    const user = data.user;
+    // sanity check role
+    if (!user || !user.role) {
+      msgEl.style.color = "red";
+      msgEl.innerText = "Invalid server response (role missing).";
+      return;
+    }
+
+    // store user (without password)
+    localStorage.setItem("loggedUser", JSON.stringify(user));
+
+    // redirect by role
+    if (user.role === "shopkeeper") {
+      window.location.href = "/shopkeeper.html";
+    } else {
+      // default to user
+      window.location.href = "/user.html";
+    }
+
+  } catch (err) {
+    console.error("Login fetch error:", err);
+    msgEl.style.color = "red";
+    msgEl.innerText = "Network error during login.";
+  }
+}
+</script>
+</body>
+</html>
