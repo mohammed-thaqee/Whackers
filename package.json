@@ -1,0 +1,31 @@
+{
+  "name": "shop-order-api",
+  "version": "1.0.0",
+  "description": "WhatsApp-based Order Processing System",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "concurrently 'npm start' 'node src/worker/order.worker.js'",
+    "lint": "eslint . --ext .js,.json",
+    "lint:fix": "eslint . --ext .js,.json --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "ci:check": "npm run format && npm run lint" 
+  },
+  "dependencies": {
+    "@google-cloud/speech": "^5.3.0",
+    "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
+    "bullmq": "^5.7.0",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ffmpeg-static": "^5.2.0",
+    "mongoose": "^8.3.4"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.7.4"
+  }
+}
